@@ -12,10 +12,11 @@ type MqttMessage struct {
 }
 
 func (ts TemperatureSensor) MqttDiscoveryMessageTemperature() MqttMessage {
-	topic := fmt.Sprintf("homeassistant/sensor/%s/temperature/config", ts.Id)
+	id := ts.Identify()
+	topic := fmt.Sprintf("homeassistant/sensor/%s/temperature/config", id)
 	payload := map[string]interface{}{
-		"unique_id":           fmt.Sprintf("%s_temperature", ts.Id),
-		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", ts.Id),
+		"unique_id":           fmt.Sprintf("%s_temperature", id),
+		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", id),
 		"name":                fmt.Sprintf("%s Temperature", ts.Name),
 		"device_class":        "temperature",
 		"unit_of_measurement": "°C",
@@ -30,10 +31,11 @@ func (ts TemperatureSensor) MqttDiscoveryMessageTemperature() MqttMessage {
 }
 
 func (psm PowerSwitchMeter) MqttDiscoveryMessagePower() MqttMessage {
-	topic := fmt.Sprintf("homeassistant/sensor/%s/power/config", psm.Id)
+	id := psm.Identify()
+	topic := fmt.Sprintf("homeassistant/sensor/%s/power/config", id)
 	payload := map[string]interface{}{
-		"unique_id":           fmt.Sprintf("%s_power", psm.Id),
-		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", psm.Id),
+		"unique_id":           fmt.Sprintf("%s_power", id),
+		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", id),
 		"name":                fmt.Sprintf("%s Power", psm.Name),
 		"device_class":        "power",
 		"unit_of_measurement": "W",
@@ -48,10 +50,11 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessagePower() MqttMessage {
 }
 
 func (psm PowerSwitchMeter) MqttDiscoveryMessageOnOff() MqttMessage {
-	topic := fmt.Sprintf("homeassistant/binary_sensor/%s/onoff/config", psm.Id)
+	id := psm.Identify()
+	topic := fmt.Sprintf("homeassistant/binary_sensor/%s/onoff/config", id)
 	payload := map[string]interface{}{
-		"unique_id":      fmt.Sprintf("%s_onoff", psm.Id),
-		"state_topic":    fmt.Sprintf("climax2mqtt/sensors/%s/state", psm.Id),
+		"unique_id":      fmt.Sprintf("%s_onoff", id),
+		"state_topic":    fmt.Sprintf("climax2mqtt/sensors/%s/state", id),
 		"name":           fmt.Sprintf("%s On/Off", psm.Name),
 		"device_class":   "power", // Optional
 		"payload_on":     "ON",
@@ -67,10 +70,11 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessageOnOff() MqttMessage {
 }
 
 func (psm PowerSwitchMeter) MqttDiscoveryMessageEnergy() MqttMessage {
-	topic := fmt.Sprintf("homeassistant/sensor/%s/energy/config", psm.Id)
+	id := psm.Identify()
+	topic := fmt.Sprintf("homeassistant/sensor/%s/energy/config", id)
 	payload := map[string]interface{}{
-		"unique_id":           fmt.Sprintf("%s_energy", psm.Id),
-		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", psm.Id),
+		"unique_id":           fmt.Sprintf("%s_energy", id),
+		"state_topic":         fmt.Sprintf("climax2mqtt/sensors/%s/state", id),
 		"name":                fmt.Sprintf("%s Energy Usage", psm.Name),
 		"device_class":        "energy",
 		"unit_of_measurement": "kWh",
@@ -86,11 +90,10 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessageEnergy() MqttMessage {
 }
 
 func (ts TemperatureSensor) MqttUpdateValueMessage() MqttMessage {
-	// Topic for publishing temperature updates
-	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", ts.Id)
+	id := ts.Identify()
+	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", id)
 
 	// Payload structure reflecting the current state/value
-	// Adjust this structure to match your actual sensor data format and Home Assistant configuration
 	payload := map[string]interface{}{
 		"temperature": ts.Temperature,
 	}
@@ -105,8 +108,8 @@ func (ts TemperatureSensor) MqttUpdateValueMessage() MqttMessage {
 }
 
 func (psm PowerSwitchMeter) MqttUpdateValueMessage() MqttMessage {
-	// Define the topic for publishing state updates, matching the state_topic in the discovery message
-	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", psm.Id)
+	id := psm.Identify()
+	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", id)
 
 	onOffState := "OFF"
 	if psm.OnOff {

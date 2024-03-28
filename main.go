@@ -66,9 +66,9 @@ func server() {
 
 func publishDiscoveryMessages(device climax.DeviceInterface, mqttClient mqtt.Client) {
 	switch dev := device.(type) {
-	case *climax.TemperatureSensor:
+	case climax.TemperatureSensor:
 		publishIfNoError(dev.MqttDiscoveryMessageTemperature(), device, mqttClient)
-	case *climax.PowerSwitchMeter:
+	case climax.PowerSwitchMeter:
 		publishIfNoError(dev.MqttDiscoveryMessageEnergy(), device, mqttClient)
 		publishIfNoError(dev.MqttDiscoveryMessageOnOff(), device, mqttClient)
 		publishIfNoError(dev.MqttDiscoveryMessagePower(), device, mqttClient)

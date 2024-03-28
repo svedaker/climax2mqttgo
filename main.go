@@ -79,11 +79,9 @@ func publishDiscoveryMessages(device climax.DeviceInterface, mqttClient mqtt.Cli
 
 func publishUpdateValueMessage(device climax.DeviceInterface, mqttClient mqtt.Client) {
 	switch dev := device.(type) {
-	case *climax.TemperatureSensor:
-		// Always update temperature sensors
+	case climax.TemperatureSensor:
 		publishIfNoError(dev.MqttUpdateValueMessage(), device, mqttClient)
-	case *climax.PowerSwitchMeter:
-		// New power switch meters get a discovery message
+	case climax.PowerSwitchMeter:
 		publishIfNoError(dev.MqttUpdateValueMessage(), device, mqttClient)
 	default:
 		log.Printf("Unsupported device type for device ID %s", dev.Identify())

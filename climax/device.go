@@ -22,6 +22,7 @@ const (
 type DeviceInterface interface {
 	Identify() string
 	DeviceType() DeviceType
+	State() string
 }
 
 type Device struct {
@@ -47,6 +48,10 @@ func (t Device) DeviceType() DeviceType {
 
 func (t Device) Identify() string {
 	return strings.Replace(t.Id, ":", "", 1)
+}
+
+func (t Device) State() string {
+	return t.Status + strconv.Itoa(int(t.Cond))
 }
 
 type PowerSwitchMeter struct {

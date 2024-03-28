@@ -5,15 +5,13 @@ import (
 	"fmt"
 )
 
-// type Config struct {
-// 	StateTopic        string `json:"state_topic"`
-// 	DeviceClass       string `json:"device_class"`
-// 	Name              string `json:"name"`
-// 	UnitOfMeasurement string `json:"unit_of_measurement"`
-// 	ValueTemplate     string `json:"value_template"`
-// }
+type MqttMessage struct {
+	Topic   string
+	Message []byte
+	Err     error
+}
 
-func (ts TemperatureSensor) MqttDiscoveryMessageTemperature() (string, []byte, error) {
+func (ts TemperatureSensor) MqttDiscoveryMessageTemperature() MqttMessage {
 	topic := fmt.Sprintf("homeassistant/sensor/%s/temperature/config", ts.Id)
 	payload := map[string]interface{}{
 		"unique_id":           fmt.Sprintf("%s_temperature", ts.Id),
@@ -26,12 +24,12 @@ func (ts TemperatureSensor) MqttDiscoveryMessageTemperature() (string, []byte, e
 
 	jsonData, err := json.MarshalIndent(payload, "", "    ")
 	if err != nil {
-		return topic, nil, err
+		return MqttMessage{topic, nil, err}
 	}
-	return topic, jsonData, nil
+	return MqttMessage{topic, jsonData, nil}
 }
 
-func (psm PowerSwitchMeter) MqttDiscoveryMessagePower() (string, []byte, error) {
+func (psm PowerSwitchMeter) MqttDiscoveryMessagePower() MqttMessage {
 	topic := fmt.Sprintf("homeassistant/sensor/%s/power/config", psm.Id)
 	payload := map[string]interface{}{
 		"unique_id":           fmt.Sprintf("%s_power", psm.Id),
@@ -44,12 +42,12 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessagePower() (string, []byte, error) 
 
 	jsonData, err := json.MarshalIndent(payload, "", "    ")
 	if err != nil {
-		return topic, nil, err
+		return MqttMessage{topic, nil, err}
 	}
-	return topic, jsonData, nil
+	return MqttMessage{topic, jsonData, nil}
 }
 
-func (psm PowerSwitchMeter) MqttDiscoveryMessageOnOff() (string, []byte, error) {
+func (psm PowerSwitchMeter) MqttDiscoveryMessageOnOff() MqttMessage {
 	topic := fmt.Sprintf("homeassistant/binary_sensor/%s/onoff/config", psm.Id)
 	payload := map[string]interface{}{
 		"unique_id":      fmt.Sprintf("%s_onoff", psm.Id),
@@ -63,12 +61,12 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessageOnOff() (string, []byte, error) 
 
 	jsonData, err := json.MarshalIndent(payload, "", "    ")
 	if err != nil {
-		return "", nil, err
+		return MqttMessage{"", nil, err}
 	}
-	return topic, jsonData, nil
+	return MqttMessage{topic, jsonData, nil}
 }
 
-func (psm PowerSwitchMeter) MqttDiscoveryMessageEnergy() (string, []byte, error) {
+func (psm PowerSwitchMeter) MqttDiscoveryMessageEnergy() MqttMessage {
 	topic := fmt.Sprintf("homeassistant/sensor/%s/energy/config", psm.Id)
 	payload := map[string]interface{}{
 		"unique_id":           fmt.Sprintf("%s_energy", psm.Id),
@@ -82,12 +80,12 @@ func (psm PowerSwitchMeter) MqttDiscoveryMessageEnergy() (string, []byte, error)
 
 	jsonData, err := json.MarshalIndent(payload, "", "    ")
 	if err != nil {
-		return "", nil, err
+		return MqttMessage{"", nil, err}
 	}
-	return topic, jsonData, nil
+	return MqttMessage{topic, jsonData, nil}
 }
 
-func (ts TemperatureSensor) MqttUpdateValueMessage() (string, []byte, error) {
+func (ts TemperatureSensor) MqttUpdateValueMessage() MqttMessage {
 	// Topic for publishing temperature updates
 	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", ts.Id)
 
@@ -100,8 +98,30 @@ func (ts TemperatureSensor) MqttUpdateValueMessage() (string, []byte, error) {
 	// Serialize the payload to JSON
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return topic, nil, fmt.Errorf("error serializing temperature update to JSON: %w", err)
+		return MqttMessage{topic, nil, fmt.Errorf("error serializing temperature update to JSON: %w", err)}
 	}
 
-	return topic, jsonData, nil
+	return MqttMessage{topic, jsonData, nil}
+}
+
+func (psm PowerSwitchMeter) MqttUpdateValueMessage() MqttMessage {
+	// Define the topic for publishing state updates, matching the state_topic in the discovery message
+	topic := fmt.Sprintf("climax2mqtt/sensors/%s/state", psm.Id)
+
+	onOffState := "OFF"
+	if psm.OnOff {
+		onOffState = "ON"
+	}
+	payload := map[string]interface{}{
+		"on_off": onOffState,
+		"power":  psm.Power,
+		"energy": psm.Energy,
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return MqttMessage{"", nil, fmt.Errorf("error serializing power switch meter state update to JSON: %w", err)}
+	}
+
+	return MqttMessage{topic, jsonData, nil}
 }

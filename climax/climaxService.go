@@ -11,7 +11,9 @@ import (
 )
 
 type ClimaxConfig struct {
-	BaseUrl string
+	BaseUrl  string `yaml:"base_url" env:"CLIMAX_BASEURL"`
+	Username string `yaml:"username" env:"CLIMAX_USERNAME"`
+	Password string `yaml:"password" env:"CLIMAX_PASSWORD"`
 }
 
 func (cfg *ClimaxConfig) AddHeaders(header *http.Header) {

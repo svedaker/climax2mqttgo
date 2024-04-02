@@ -1,0 +1,37 @@
+# Exclude all files by default
+**
+
+# Allow specific directories and files
+!/*.go
+!/go.mod
+!/go.sum
+
+# Allow all files and directories in the cmd directory
+!/cmd/**
+
+# Allow all files in any directory under pkg
+!/pkg/**
+
+# Exclude files and directories that are not needed
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+.vscode
+.idea
+*.md
+
+# Exclude temporary files and directories
+tmp
+temp
+*.tmp
+*.log
+vendor
+
+# Exclude test files
+*_test.go
+
+# Exclude build outputs
+bin
+dist

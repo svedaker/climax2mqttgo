@@ -7,10 +7,27 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
+type Config struct {
+	Mqtt   mqttService.MqttConfig `yaml:"mqtt"`
+	Climax climax.ClimaxConfig    `yaml:"climax"`
+}
+
 func main() {
-	server()
+	var cfg Config
+
+	err := cleanenv.ReadEnv(&cfg)
+	if err != nil {
+		log.Println("Error loading config:", err)
+		return
+	}
+
+	log.Printf("MQTT Config: %+v\n", cfg.Mqtt)
+	log.Printf("Climax Config: %+v\n", cfg.Climax)
+
+	//server(&cfg)
 	// cfg := climax.ClimaxConfig{BaseUrl: "http://192.168.1.187/"}
 	// devices, _ := cfg.GetDevices()
 	// //fmt.Printf("%+v\n", devices)
@@ -34,7 +51,7 @@ func main() {
 	// mqtt.Disconnect(250)
 }
 
-func server() {
+func server(config *Config) {
 	mqttCfg := mqttService.MqttConfig{BaseUrl: "192.168.1.142", Port: 1883, Username: "mqtt", Password: "mqtt"}
 	mqttClient := mqttService.Connect(mqttCfg)
 	repo := climax.NewMemoryDeviceRepository() // Initialize your device repository

@@ -1,0 +1,26 @@
+{
+    "name": "climax2mqtt",
+    "version": "0.1",
+    "slug": "climax2mqttgo",
+    "description": "climax2qmtt build with Go",
+    "startup": "application",
+    "boot": "auto",
+    "options": {
+        "mqtt_server": "192.168.1.142",
+        "mqtt_port": 1883,
+        "mqtt_user": "mqtt",
+        "mqtt_password": "mqtt",
+        "climax_baseurl": "192.168.1.187",
+        "climax_username": "admin",
+        "climax_password": "admin1234"
+    },
+    "schema": {
+        "mqtt_server": "str",
+        "mqtt_port": "int",
+        "mqtt_user": "str",
+        "mqtt_password": "str",
+        "climax_baseurl": "str",
+        "climax_username": "str",
+        "climax_password": "str"
+    }
+}

@@ -4,7 +4,6 @@ import (
 	"climax/climax"
 	"climax/mqttService"
 	"log"
-	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -12,8 +11,8 @@ import (
 )
 
 type Config struct {
-	Mqtt   mqttService.MqttConfig `yaml:"mqtt"`
-	Climax climax.ClimaxConfig    `yaml:"climax"`
+	Mqtt   mqttService.MqttConfig `json:"mqtt"`
+	Climax climax.ClimaxConfig    `json:"climax"`
 }
 
 func main() {
@@ -25,11 +24,14 @@ func main() {
 		return
 	}
 
+	optionsPath := "/data/options.json"
+	err = cleanenv.ReadConfig(optionsPath, &cfg)
+	if err != nil {
+		panic(err)
+	}
+
 	log.Printf("MQTT Config: %+v\n", cfg.Mqtt)
 	log.Printf("Climax Config: %+v\n", cfg.Climax)
-
-	log.Println("mqtt_server:", os.Getenv("mqtt_server"))
-	log.Println("MQTT_SERVER:", os.Getenv("MQTT_SERVER"))
 
 	server(&cfg)
 }

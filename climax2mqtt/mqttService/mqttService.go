@@ -8,10 +8,10 @@ import (
 )
 
 type MqttConfig struct {
-	Server   string `yaml:"base_url" env:"mqtt_server"`
-	Port     int    `yaml:"port" env:"mqtt_port" env-default:"1883"`
-	Username string `yaml:"username" env:"mqtt_username" env-default:"mqtt"`
-	Password string `yaml:"password" env:"mqtt_password" env-default:"mqtt"`
+	Server   string `yaml:"base_url" env:"mqtt_server" json:"mqtt_server"`
+	Port     int    `yaml:"port" env:"mqtt_port" json:"mqtt_port" env-default:"1883"`
+	Username string `yaml:"username" env:"mqtt_username" json:"mqtt_username" env-default:"mqtt"`
+	Password string `yaml:"password" env:"mqtt_password" json:"mqtt_password" env-default:"mqtt"`
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {

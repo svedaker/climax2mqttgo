@@ -3,12 +3,13 @@ package main
 import (
 	"climax/climax"
 	"climax/mqttService"
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
@@ -18,26 +19,27 @@ type Config struct {
 
 func main() {
 	var cfg Config
+	optionsPath := "data/options.json"
 
-	err := cleanenv.ReadEnv(&cfg)
+	file, err := os.Open(optionsPath)
 	if err != nil {
-		log.Println("Error loading config:", err)
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	err = json.NewDecoder(file).Decode(&cfg.Mqtt)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
 		return
 	}
 
-	optionsPath := "/data/options.json"
-	err = cleanenv.ReadConfig(optionsPath, &cfg)
+	file.Seek(0, 0)
+	err = json.NewDecoder(file).Decode(&cfg.Climax)
 	if err != nil {
-		panic(err)
-	}
-
-	log.Println("files in /data/options.json")
-	content, err := os.ReadFile("/data/options.json")
-	if err != nil {
-		log.Println("Error reading file:", err)
+		fmt.Println("Error decoding JSON:", err)
 		return
 	}
-	log.Println(string(content))
 
 	log.Printf("MQTT Config: %+v\n", cfg.Mqtt)
 	log.Printf("Climax Config: %+v\n", cfg.Climax)

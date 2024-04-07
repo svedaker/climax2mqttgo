@@ -5,7 +5,6 @@ import (
 	"climax/mqttService"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -32,15 +31,13 @@ func main() {
 		panic(err)
 	}
 
-	log.Println("files in /data")
-	err = filepath.Walk("/data", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		log.Println("files: ", path)
-		return nil
-	})
+	log.Println("files in /data/options.json")
+	content, err := os.ReadFile("/data/options.json")
+	if err != nil {
+		log.Println("Error reading file:", err)
+		return
+	}
+	log.Println(string(content))
 
 	log.Printf("MQTT Config: %+v\n", cfg.Mqtt)
 	log.Printf("Climax Config: %+v\n", cfg.Climax)

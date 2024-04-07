@@ -1,0 +1,4 @@
+build_from:
+  amd64: "golang:1.16"
+  armv7: "golang:1.16"
+  aarch64: "golang:1.16"

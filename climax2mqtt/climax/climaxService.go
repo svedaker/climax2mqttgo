@@ -23,7 +23,7 @@ func (cfg *ClimaxConfig) AddHeaders(header *http.Header) {
 
 func (cfg *ClimaxConfig) GetDevices() ([]DeviceInterface, error) {
 
-	url := cfg.BaseUrl + "action/deviceListGet"
+	url := cfg.BaseUrl + "/action/deviceListGet"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("getDevices: could not create request: %s\n", err)
@@ -88,7 +88,7 @@ func (cfg *ClimaxConfig) GetDevices() ([]DeviceInterface, error) {
 }
 
 func (cfg *ClimaxConfig) GetDeviceHistory(count_optional ...int) ([]DeviceHistory, error) {
-	urlStr := cfg.BaseUrl + "action/historyGet"
+	urlStr := cfg.BaseUrl + "/action/historyGet"
 
 	count := 10
 	if len(count_optional) == 1 {

@@ -8,7 +8,7 @@ import (
 )
 
 type MqttConfig struct {
-	BaseUrl  string `yaml:"base_url" env:"mqtt_baseurl"`
+	Server   string `yaml:"base_url" env:"mqtt_server"`
 	Port     int    `yaml:"port" env:"mqtt_port" env-default:"1883"`
 	Username string `yaml:"username" env:"mqtt_username" env-default:"mqtt"`
 	Password string `yaml:"password" env:"mqtt_password" env-default:"mqtt"`
@@ -28,7 +28,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 
 func Connect(cfg MqttConfig) mqtt.Client {
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", cfg.BaseUrl, cfg.Port))
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", cfg.Server, cfg.Port))
 	opts.SetClientID("go_mqtt_client")
 	opts.SetUsername(cfg.Username)
 	opts.SetPassword(cfg.Password)

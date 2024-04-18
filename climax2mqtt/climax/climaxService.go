@@ -2,6 +2,7 @@ package climax
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -19,6 +20,72 @@ type ClimaxConfig struct {
 func (cfg *ClimaxConfig) AddHeaders(header *http.Header) {
 	header.Add("Authorization", "Basic YWRtaW46YWRtaW4xMjM0")
 	header.Add("Accept", "application/json")
+}
+
+type ApiResponse struct {
+	Result  int    `json:"result"`
+	Message string `json:"message"`
+}
+
+func (cfg *ClimaxConfig) SetDeviceSwitch(deviceId string, switchState bool, pd ...string) error {
+	urlStr := cfg.BaseUrl + "/action/deviceSwitchPSSPost"
+
+	var pdValue string
+	if len(pd) > 0 {
+		pdValue = pd[0]
+	} else {
+		pdValue = ""
+	}
+
+	switchValue := "0"
+	if switchState {
+		switchValue = "1"
+	}
+
+	formData := url.Values{
+		"id":     {deviceId},
+		"switch": {switchValue},
+		"pd":     {pdValue},
+	}
+	log.Printf("setDeviceSwitch: formData: %s\n", formData.Encode())
+
+	req, err := http.NewRequest("POST", urlStr, strings.NewReader(formData.Encode()))
+	if err != nil {
+		log.Printf("setDeviceSwitch: could not create request: %s\n", err)
+		return err
+	}
+
+	cfg.AddHeaders(&req.Header)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Printf("setDeviceSwitch: error making http request: %s\n", err)
+		return err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Printf("setDeviceSwitch: could not read response body: %s\n", err)
+		return err
+	}
+
+	var apiResp ApiResponse
+	err = json.Unmarshal(body, &apiResp)
+	if err != nil {
+		log.Printf("setDeviceSwitch: could not unmarshal JSON: %s\n %s", err, string(body))
+		return err
+	}
+
+	if apiResp.Result != 1 {
+		errMsg := fmt.Sprintf("setDeviceSwitch: failed with message: %s", apiResp.Message)
+		log.Println(errMsg)
+		return fmt.Errorf(errMsg)
+	}
+
+	log.Printf("setDeviceSwitch: successful - %s", apiResp.Message)
+	return nil
 }
 
 func (cfg *ClimaxConfig) GetDevices() ([]DeviceInterface, error) {

@@ -32,6 +32,7 @@ func Connect(cfg MqttConfig) mqtt.Client {
 	opts.SetClientID("go_mqtt_client")
 	opts.SetUsername(cfg.Username)
 	opts.SetPassword(cfg.Password)
+	opts.SetCleanSession(false)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
@@ -49,6 +50,6 @@ func Subscribe(client mqtt.Client, topic string, callback mqtt.MessageHandler) {
 }
 
 func Publish(client mqtt.Client, topic string, message interface{}) {
-	token := client.Publish(topic, 0, false, message)
+	token := client.Publish(topic, 1, false, message)
 	token.Wait()
 }

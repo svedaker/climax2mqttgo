@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -51,6 +52,12 @@ func server(config *Config) {
 	mqttClient := mqttService.Connect(config.Mqtt)
 	repo := climax.NewMemoryDeviceRepository()
 
+	messageHandler := func(client mqtt.Client, msg mqtt.Message) {
+		handleMessage(config, client, msg)
+	}
+
+	mqttService.Subscribe(mqttClient, "climax2mqtt/switches/#", messageHandler)
+
 	// Periodically fetch devices and publish updates
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -72,6 +79,43 @@ func server(config *Config) {
 			}
 		}
 	}
+}
+
+func handleMessage(config *Config, client mqtt.Client, msg mqtt.Message) {
+	topic := msg.Topic()
+	payload := string(msg.Payload())
+
+	log.Printf("Received message on topic %s: %s\n", topic, payload)
+
+	parts := strings.Split(topic, "/")
+	if len(parts) < 4 {
+		log.Printf("Invalid topic format: %s\n", topic)
+		return
+	}
+	deviceID := parts[2]
+	formattedDeviceID := insertColonAfterZB(deviceID)
+
+	var switchState bool
+	switch payload {
+	case "ON":
+		switchState = true
+	case "OFF":
+		switchState = false
+	default:
+		log.Printf("Received unknown switch state: %s\n", payload)
+		return
+	}
+
+	if err := config.Climax.SetDeviceSwitch(formattedDeviceID, switchState); err != nil {
+		log.Printf("Error setting device switch on %s to %s: %s\n", formattedDeviceID, payload, err)
+	}
+}
+
+func insertColonAfterZB(deviceId string) string {
+	if strings.HasPrefix(deviceId, "ZB") && len(deviceId) > 2 {
+		return deviceId[:2] + ":" + deviceId[2:]
+	}
+	return deviceId
 }
 
 func publishDiscoveryMessages(device climax.DeviceInterface, mqttClient mqtt.Client) {

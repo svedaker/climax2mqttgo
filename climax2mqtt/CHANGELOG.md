@@ -1,4 +1,6 @@
-Handle set ON, OFF
+
+0.1.11 Fix none negative values for power 
+0.1.10 Handle set ON, OFF
 fix climax url
 fix config user -> username
 read json options.

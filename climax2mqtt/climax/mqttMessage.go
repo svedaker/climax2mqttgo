@@ -3,6 +3,7 @@ package climax
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 )
 
 type MqttMessage struct {
@@ -120,7 +121,7 @@ func (psm PowerSwitchMeter) MqttUpdateValueMessage() MqttMessage {
 	}
 	payload := map[string]interface{}{
 		"power_state": onOffState,
-		"power":       psm.Power,
+		"power":       math.Max(psm.Power, 0),
 		"energy":      psm.Energy,
 	}
 
